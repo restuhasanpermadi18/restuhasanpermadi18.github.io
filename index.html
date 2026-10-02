@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Your Name] | [Target role]</title>
+  <meta name="description" content="[One sentence: who you are and what you do]">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <nav class="wrap" aria-label="Sections">
+    <a class="name" href="#top">[Your Name]</a>
+    <a href="#profile">Profile</a>
+    <a href="#projects">Projects</a>
+    <a href="#testimonials">Testimonials</a>
+    <a href="#others">Others</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero wrap" id="profile">
+    <h1>[Your Name]</h1>
+    <p class="lead">[One sentence: the role you are aiming for and what you bring.]</p>
+    <p>[Short bio, 3 to 4 sentences: your background, the skills you have built, and what you want to do next.]</p>
+    <p><a href="[your-cv.pdf]">Download CV</a></p>
+    <dl class="facts">
+      <dt>Studying</dt><dd>[Degree, university]</dd>
+      <dt>Training</dt><dd>[Bootcamp, certifications]</dd>
+      <dt>Experience</dt><dd>[Organisations, roles]</dd>
+      <dt>Skills</dt><dd>[Tools and methods you actually use]</dd>
+      <dt>Looking for</dt><dd>[Role type, remote or onsite, location]</dd>
+    </dl>
+  </section>
+
+  <section id="projects">
+    <div class="wrap">
+      <h2>Projects</h2>
+      <p class="muted">[One line on how to read this: drag or use the buttons, then open the case study.]</p>
+    </div>
+
+    <div class="cf" id="cf" role="group" aria-roledescription="carousel" aria-label="Projects">
+      <div class="cf-stage" id="cfStage"></div>
+      <div class="cf-cap" id="cfCap" aria-live="polite"></div>
+      <div class="cf-ctl">
+        <button type="button" id="cfPrev">Previous</button>
+        <button type="button" id="cfNext">Next</button>
+      </div>
+    </div>
+    <noscript><div class="wrap"><p><a href="case-study.html">Open the case study</a></p></div></noscript>
+  </section>
+
+  <section class="wrap" id="testimonials">
+    <h2>Testimonials</h2>
+    <blockquote>
+      <p>[One or two sentences from a mentor, teammate, or lecturer.]</p>
+      <p class="muted">[Name, role]</p>
+    </blockquote>
+    <p><a href="[linkedin-recommendations-url]">More on LinkedIn</a></p>
+  </section>
+
+  <section class="wrap" id="others">
+    <h2>Others</h2>
+    <ul class="plain">
+      <li><a href="[link]">[Presentation or deck]</a></li>
+      <li>[Award, activity, or organisation]</li>
+      <li>[Event or photo link]</li>
+    </ul>
+  </section>
+
+  <section class="wrap" id="contact">
+    <h2>Contact</h2>
+    <p><a href="mailto:[your-email]">[your-email]</a></p>
+    <p><a href="[linkedin-url]">LinkedIn</a></p>
+  </section>
+
+</main>
+
+<footer><div class="wrap">[Your Name]</div></footer>
+
+<script>
+/* Edit the projects here. Aim for 3 to 5.
+   cover: path or URL to a square image. Leave '' for a plain colour block. */
+const slides = [
+  { title:'[Project 1 title]', sub:'[Real project or practice case]', href:'case-study.html', cover:'', color:'#3f5a63',
+    meta:[['Domain','[Domain]'],['Methodology','[Method]'],['Artifact','[PRD, deck, dashboard]']] },
+  { title:'[Project 2 title]', sub:'[Real project or practice case]', href:'case-study.html', cover:'', color:'#6b5a4a',
+    meta:[['Domain','[Domain]'],['Methodology','[Method]'],['Artifact','[PRD, deck, dashboard]']] },
+  { title:'[Project 3 title]', sub:'[Real project or practice case]', href:'case-study.html', cover:'', color:'#4a5568',
+    meta:[['Domain','[Domain]'],['Methodology','[Method]'],['Artifact','[PRD, deck, dashboard]']] },
+  { title:'[Project 4 title]', sub:'[Real project or practice case]', href:'case-study.html', cover:'', color:'#5b6b4f',
+    meta:[['Domain','[Domain]'],['Methodology','[Method]'],['Artifact','[PRD, deck, dashboard]']] }
+];
+
+(function(){
+  const stage = document.getElementById('cfStage'), cap = document.getElementById('cfCap'),
+        prev = document.getElementById('cfPrev'), next = document.getElementById('cfNext'),
+        root = document.getElementById('cf');
+  let active = 0, pos = 0, moved = false;
+
+  const cards = slides.map((s, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'cf-card' + (s.cover ? ' img' : '');
+    b.style.setProperty('--c', s.color || '#3f5a63');
+    if (s.cover) b.style.backgroundImage = 'url("' + s.cover + '")';
+    b.innerHTML = '<span></span>';
+    b.firstChild.textContent = s.title;
+    b.setAttribute('aria-label', s.title);
+    b.addEventListener('click', () => { if (!moved) go(i); });
+    stage.appendChild(b);
+    return b;
+  });
+
+  function layout(){
+    const step = cards[0].offsetWidth * 0.62;
+    cards.forEach((c, i) => {
+      const d = i - pos, a = Math.abs(d), sgn = Math.sign(d);
+      const rot = -sgn * Math.min(a, 1) * 50;       // outer edge swings toward the viewer
+      const sc = 1 - Math.min(a, 2) * 0.08;
+      c.style.transform = 'translateX(' + (d * step) + 'px) rotateY(' + rot + 'deg) scale(' + sc + ')';
+      c.style.zIndex = 100 - Math.round(a * 10);
+      c.style.opacity = a > 3 ? 0 : 1;
+      c.style.pointerEvents = a > 3 ? 'none' : 'auto';
+      c.tabIndex = i === active ? 0 : -1;
+    });
+  }
+
+  function caption(){
+    const s = slides[active];
+    cap.innerHTML = '';
+    const h = document.createElement('h3'); h.textContent = s.title;
+    const p = document.createElement('p'); p.className = 'muted'; p.textContent = s.sub;
+    const dl = document.createElement('dl'); dl.className = 'facts';
+    s.meta.forEach(m => {
+      const dt = document.createElement('dt'), dd = document.createElement('dd');
+      dt.textContent = m[0]; dd.textContent = m[1]; dl.append(dt, dd);
+    });
+    const a = document.createElement('a'); a.href = s.href; a.textContent = 'Read case study';
+    cap.append(h, p, dl, a);
+    prev.disabled = active === 0;
+    next.disabled = active === slides.length - 1;
+  }
+
+  function go(i){
+    active = Math.max(0, Math.min(slides.length - 1, i));
+    pos = active; layout(); caption();
+  }
+
+  // Drag
+  let startX = 0, startPos = 0, dragging = false;
+  stage.addEventListener('pointerdown', e => {
+    dragging = true; moved = false; startX = e.clientX; startPos = pos;
+  });
+  window.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) { moved = true; stage.classList.add('drag'); }
+    if (!moved) return;
+    const step = cards[0].offsetWidth * 0.62;
+    pos = Math.max(0, Math.min(slides.length - 1, startPos - dx / step));
+    layout();
+  });
+  window.addEventListener('pointerup', () => {
+    if (!dragging) return;
+    dragging = false; stage.classList.remove('drag');
+    if (moved) { go(Math.round(pos)); setTimeout(() => { moved = false; }, 0); }
+  });
+
+  prev.addEventListener('click', () => go(active - 1));
+  next.addEventListener('click', () => go(active + 1));
+  root.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') go(active - 1);
+    if (e.key === 'ArrowRight') go(active + 1);
+  });
+  window.addEventListener('resize', layout);
+
+  go(0);
+})();
+</script>
+</body>
+</html>
